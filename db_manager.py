@@ -1,5 +1,3 @@
-import psycopg2
-import datetime
 import pytz
 from datetime import datetime
 
@@ -38,7 +36,7 @@ class DatabaseManager:
 
     def read_record(self, conn, id):
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM todos where id = %s;", str(id))
+        cursor.execute("SELECT * FROM todos WHERE id = %s;", (id,))
         row = cursor.fetchall()
 
         conn.commit()
@@ -52,6 +50,7 @@ class DatabaseManager:
         cursor = conn.cursor()
         cursor.execute("UPDATE todos SET title = %s,description = %s,completed = %s,updated_at = %s WHERE id = %s;",
                        (title, description, completed, updated_time, id))
+
         conn.commit()
         cursor.close()
         conn.close()
@@ -59,14 +58,14 @@ class DatabaseManager:
 
     def delete_record(self, conn, id):
         cursor = conn.cursor()
+        cursor.execute("DELETE FROM todos WHERE id = %s;", (id,))
 
-        cursor.execute("DELETE FROM todos WHERE id = %s;", (str(id)))
         conn.commit()
         cursor.close()
         conn.close()
         return {"message": "TODO is deleted"}
 
     def get_current_time_japan(self):
-        japan_tz = pytz.timezone('Asia/Tokyo')  # 日本のタイムゾーンを設定
-        current_time = datetime.datetime.now(japan_tz)  # 現在時刻を取得
-        return current_time.strftime("%Y-%m-%d %H:%M:%S")  # フォーマットして返す
+        japan_tz = pytz.timezone('Asia/Tokyo')
+        current_time = datetime.datetime.now(japan_tz)
+        return current_time.strftime("%Y-%m-%d %H:%M:%S")
